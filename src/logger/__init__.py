@@ -8,8 +8,7 @@ import logging.config
 import os
 
 from chassis.messaging import (
-    start_rabbitmq_listener,
-    RABBITMQ_CONFIG
+    start_rabbitmq_listener
 )
 
 from .messaging.consumer import LISTENING_QUEUES
@@ -20,7 +19,6 @@ from .messaging.global_vars import (
     RABBITMQ_CONFIG,
 )
 
-logging.config.fileConfig(os.path.join(os.path.dirname(__file__), "logging.ini"))
 logger = logging.getLogger("log_aggregation")
 
 @asynccontextmanager
