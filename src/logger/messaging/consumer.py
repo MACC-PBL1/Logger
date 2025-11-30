@@ -1,5 +1,5 @@
 import logging
-from .database import sync_logs_collection
+from ..mongo.database import sync_logs_collection
 from chassis.messaging import (
     register_queue_handler,
     MessageType

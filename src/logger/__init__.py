@@ -4,8 +4,8 @@ from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from threading import Thread
 import asyncio
-import logging.config
 import os
+import logging.config
 
 from chassis.messaging import (
     start_rabbitmq_listener
@@ -15,7 +15,6 @@ from .messaging.consumer import LISTENING_QUEUES
 from .routers import Router
 
 from .messaging.global_vars import (
-    LISTENING_QUEUES,
     RABBITMQ_CONFIG,
 )
 
