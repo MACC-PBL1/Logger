@@ -11,11 +11,14 @@ from chassis.messaging import (
     start_rabbitmq_listener,
     RABBITMQ_CONFIG
 )
-from chassis.consul import ConsulClient
 
 from .messaging.consumer import LISTENING_QUEUES
 from .routers import Router
 
+from .messaging.global_vars import (
+    LISTENING_QUEUES,
+    RABBITMQ_CONFIG,
+)
 
 logging.config.fileConfig(os.path.join(os.path.dirname(__file__), "logging.ini"))
 logger = logging.getLogger("log_aggregation")
