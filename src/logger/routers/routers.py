@@ -43,8 +43,15 @@ async def get_logs(
     level: Optional[str] = Query(None, description="Filter by log level (INFO, ERROR, WARN)"),
     token_data: dict = Depends(create_jwt_verifier(lambda: PUBLIC_KEY["key"], logger))
 ):
+    user_role = token_data.get("role")
+    if user_role != "admin":
+        raise_and_log_error(
+            logger, 
+            status.HTTP_401_UNAUTHORIZED, 
+            f"Access denied: user_role={user_role} (admin required)",
+        )
     mongo_query: Dict[str, Any] = {}
-
+    
     if log_type:
         mongo_query["log_type"] = log_type
     if level:
