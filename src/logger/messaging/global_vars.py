@@ -19,3 +19,4 @@ RABBITMQ_CONFIG: RabbitMQConfig = {
     "client_key": Path(client_key_path) if client_key_path else None,
     "prefetch_count": int(os.getenv("RABBITMQ_PREFETCH_COUNT", 10))
 }
+
