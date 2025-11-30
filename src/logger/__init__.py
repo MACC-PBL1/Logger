@@ -1,0 +1,65 @@
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from hypercorn.asyncio import serve
+from hypercorn.config import Config
+from threading import Thread
+import asyncio
+import logging.config
+import os
+
+from chassis.messaging import (
+    start_rabbitmq_listener,
+    RABBITMQ_CONFIG
+)
+from chassis.consul import ConsulClient
+
+from .messaging.consumer import LISTENING_QUEUES
+from .routers import Router
+
+
+logging.config.fileConfig(os.path.join(os.path.dirname(__file__), "logging.ini"))
+logger = logging.getLogger("log_aggregation")
+
+@asynccontextmanager
+async def lifespan(__app: FastAPI):
+    try:
+        logger.info("Starting Log Aggregation Service")
+        
+        logger.info("Starting RabbitMQ consumers...")
+        try:
+            for _, queue_name in LISTENING_QUEUES.items():
+                Thread(
+                    target=start_rabbitmq_listener,
+                    args=(queue_name, RABBITMQ_CONFIG),
+                    daemon=True,
+                ).start()
+        except Exception as e:
+            logger.error(f"Could not start RabbitMQ listeners: {e}")
+
+        yield
+    finally:
+        logger.info("Shutting down Log Aggregation Service")
+
+# Información de la App
+APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
+DESCRIPTION = """
+Centralized Log Aggregation Service backed by MongoDB.
+Consumes logs from RabbitMQ 'logs' exchange and exposes them via REST API.
+"""
+
+APP = FastAPI(
+    title="Log Aggregation Service",
+    description=DESCRIPTION,
+    version=APP_VERSION,
+    lifespan=lifespan,
+)
+
+APP.include_router(Router)
+
+def start_server():
+    config = Config()
+    config.bind = [os.getenv("HOST", "0.0.0.0") + ":" + os.getenv("PORT", "8000")]
+    config.workers = int(os.getenv("WORKERS", "1"))
+    
+    logger.info("Starting Hypercorn server on %s", config.bind)
+    asyncio.run(serve(APP, config))
