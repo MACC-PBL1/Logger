@@ -8,7 +8,9 @@ from chassis.consul import ConsulClient
 import requests
 
 logger = logging.getLogger(__name__)
-
+from .global_vars import (
+    PUBLIC_KEY,
+)
 
 LOGS_QUEUE = "log_aggregation_queue"
 LOGS_EXCHANGE = "logs"
