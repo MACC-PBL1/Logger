@@ -29,5 +29,6 @@ def handle_log_message(message: MessageType) -> None:
         logger.error(f"Failed to insert log into MongoDB: {e}")
 
 LISTENING_QUEUES = {
-    "logs": LOGS_QUEUE
+    "logs": LOGS_QUEUE,
+    "public_key": "client.public_key.logger",
 }

@@ -28,3 +28,7 @@ class LogEntry(BaseModel):
     class Config:
         extra = "allow" 
         populate_by_name = True
+        
+class Message(BaseModel):
+    detail: str
+    system_metrics: dict

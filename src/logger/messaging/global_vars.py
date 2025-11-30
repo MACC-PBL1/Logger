@@ -1,8 +1,11 @@
 from chassis.messaging import RabbitMQConfig
 from pathlib import Path
-from typing import Dict, Optional
 import os
-
+from typing import (
+    Dict,
+    LiteralString,
+    Optional,
+)
 # RabbitMQ Configuration ###########################################################################
 ca_cert_path = os.getenv("RABBITMQ_CA_CERT_PATH", None)
 client_cert_path = os.getenv("RABBITMQ_CLIENT_CERT_PATH", None)
@@ -20,3 +23,4 @@ RABBITMQ_CONFIG: RabbitMQConfig = {
     "prefetch_count": int(os.getenv("RABBITMQ_PREFETCH_COUNT", 10))
 }
 
+PUBLIC_KEY: Dict[str, Optional[str]] = {"key": None}

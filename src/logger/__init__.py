@@ -6,6 +6,7 @@ from threading import Thread
 import asyncio
 import os
 import logging.config
+from chassis.consul import ConsulClient 
 
 from chassis.messaging import (
     start_rabbitmq_listener
@@ -35,6 +36,10 @@ async def lifespan(__app: FastAPI):
                 ).start()
         except Exception as e:
             logger.error(f"Could not start RabbitMQ listeners: {e}")
+        logger.info("[LOG:LOGGER] - Registering service to Consul...")
+        service_port = int(os.getenv("PORT", "8000"))
+        consul = ConsulClient(logger=logger)
+        consul.register_service(service_name="logger-service", port=service_port, health_path="/logger/health")
 
         yield
     finally:
