@@ -6,6 +6,7 @@ from threading import Thread
 import asyncio
 import os
 import logging.config
+import socket
 from chassis.consul import CONSUL_CLIENT 
 
 from chassis.messaging import (
@@ -39,9 +40,9 @@ async def lifespan(__app: FastAPI):
         logger.info("[LOG:AUTH] - Registering service to Consul...")
         try:
             CONSUL_CLIENT.register_service(
-                service_name="auth",
-                ec2_address=os.getenv("HOST_IP", "localhost"),
-                service_port=int(os.getenv("HOST_PORT", 80)),
+                service_name="logger",
+                ec2_address=os.getenv("HOST_IP", socket.gethostbyname(socket.gethostname())),
+                service_port=int(os.getenv("HOST_PORT", 8000)),
             )
         except Exception as e:
             logger.error(f"[LOG:AUTH] - Failed to register with Consul: Reason={e}", exc_info=True)
