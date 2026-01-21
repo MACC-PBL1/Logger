@@ -6,7 +6,7 @@ from threading import Thread
 import asyncio
 import os
 import logging.config
-from chassis.consul import ConsulClient 
+from chassis.consul import CONSUL_CLIENT 
 
 from chassis.messaging import (
     start_rabbitmq_listener
@@ -36,14 +36,19 @@ async def lifespan(__app: FastAPI):
                 ).start()
         except Exception as e:
             logger.error(f"Could not start RabbitMQ listeners: {e}")
-        logger.info("[LOG:LOGGER] - Registering service to Consul...")
-        service_port = int(os.getenv("PORT", "8000"))
-        consul = ConsulClient(logger=logger)
-        consul.register_service(service_name="logger-service", port=service_port, health_path="/logger/health")
-
+        logger.info("[LOG:AUTH] - Registering service to Consul...")
+        try:
+            CONSUL_CLIENT.register_service(
+                service_name="auth",
+                ec2_address=os.getenv("HOST_IP", "localhost"),
+                service_port=int(os.getenv("HOST_PORT", 80)),
+            )
+        except Exception as e:
+            logger.error(f"[LOG:AUTH] - Failed to register with Consul: Reason={e}", exc_info=True)
         yield
     finally:
         logger.info("Shutting down Log Aggregation Service")
+        CONSUL_CLIENT.deregister_service()
 
 # Información de la App
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
@@ -67,4 +72,4 @@ def start_server():
     config.workers = int(os.getenv("WORKERS", "1"))
     
     logger.info("Starting Hypercorn server on %s", config.bind)
-    asyncio.run(serve(APP, config))
+    asyncio.run(serve(APP, config)) # type: ignore
